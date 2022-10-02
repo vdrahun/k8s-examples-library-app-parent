@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: admin-helm
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    server: {{ .Values.spec.destination.server }}
+    namespace: library-helm
+  project: default
+  source:
+    helm:
+      releaseName: admin
+      valueFiles:
+        - values.yaml
+      values: |
+        ingress:
+          host: admin.helm
+    path: k8s/helm/admin
+    repoURL: https://github.com/vdrahun/k8s-examples-admin.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
